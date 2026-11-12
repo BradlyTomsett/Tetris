@@ -1,0 +1,1672 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#0b101e">
+  <meta name="description" content="适合手机竖屏游玩的单机拼块游戏，支持匀速、渐快和三角形模式。">
+  <title>方块街机 · 俄罗斯方块</title>
+  <link rel="icon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxOTIgMTkyIj4KICA8ZGVmcz4KICAgIDxsaW5lYXJHcmFkaWVudCBpZD0iYmFja2dyb3VuZCIgeDI9IjEiIHkyPSIxIiBncmFkaWVudFVuaXRzPSJvYmplY3RCb3VuZGluZ0JveCI+CiAgICAgIDxzdG9wIHN0b3AtY29sb3I9IiMyMTIwNDUiLz4KICAgICAgPHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjMTAxMDI0Ii8+CiAgICA8L2xpbmVhckdyYWRpZW50PgogICAgPGxpbmVhckdyYWRpZW50IGlkPSJibG9jayIgeDI9IjAiIHkyPSIxIiBncmFkaWVudFVuaXRzPSJvYmplY3RCb3VuZGluZ0JveCI+CiAgICAgIDxzdG9wIHN0b3AtY29sb3I9IiNjMzljZmYiLz4KICAgICAgPHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjOGM1NmZmIi8+CiAgICA8L2xpbmVhckdyYWRpZW50PgogICAgPGcgaWQ9InNxdWFyZSI+CiAgICAgIDxyZWN0IHk9IjMiIHdpZHRoPSIzMiIgaGVpZ2h0PSIzMiIgcng9IjYiIGZpbGw9IiM2MDM0YzQiLz4KICAgICAgPHJlY3Qgd2lkdGg9IjMyIiBoZWlnaHQ9IjMyIiByeD0iNiIgZmlsbD0idXJsKCNibG9jaykiLz4KICAgICAgPHBhdGggZD0iTTcgN2gxOCIgc3Ryb2tlPSIjZWZlM2ZmIiBzdHJva2Utb3BhY2l0eT0iLjciIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIi8+CiAgICA8L2c+CiAgPC9kZWZzPgogIDxwYXRoIGZpbGw9InVybCgjYmFja2dyb3VuZCkiIGQ9Ik0wIDBoMTkydjE5MkgweiIvPgogIDxjaXJjbGUgY3g9Ijk2IiBjeT0iOTYiIHI9IjY1IiBmaWxsPSIjMjMyMDQ5IiBzdHJva2U9IiM0ODQxNzIiIHN0cm9rZS13aWR0aD0iMiIvPgogIDx1c2UgaHJlZj0iI3NxdWFyZSIgeD0iODAiIHk9IjU5Ii8+CiAgPHVzZSBocmVmPSIjc3F1YXJlIiB4PSI0NCIgeT0iOTUiLz4KICA8dXNlIGhyZWY9IiNzcXVhcmUiIHg9IjgwIiB5PSI5NSIvPgogIDx1c2UgaHJlZj0iI3NxdWFyZSIgeD0iMTE2IiB5PSI5NSIvPgo8L3N2Zz4K">
+<style>
+:root {
+  color-scheme: dark;
+  font-family: system-ui, "PingFang SC", "Microsoft YaHei", sans-serif;
+  --ink: #080b16;
+  --border: #293656;
+  --text: #edf5ff;
+  --muted: #9aaac6;
+  --cyan: #7dece9;
+  --violet: #c4b0ff;
+  --mono: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+  --viewport-height: 100vh;
+}
+
+@supports (height: 100svh) {
+  :root {
+    --viewport-height: 100svh;
+  }
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-width: 260px;
+  min-height: 100vh;
+  min-height: 100svh;
+  color: var(--text);
+  background-color: var(--ink);
+  background-image:
+    radial-gradient(ellipse at 50% 2%, #26335e 0%, transparent 46rem),
+    radial-gradient(ellipse at 84% 86%, #231837 0%, transparent 32rem),
+    radial-gradient(circle, #92a9f119 0.7px, transparent 0.9px);
+  background-size: auto, auto, 18px 18px;
+  background-attachment: fixed;
+}
+
+button {
+  color: inherit;
+  font: inherit;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  cursor: pointer;
+  user-select: none;
+}
+
+button:focus-visible {
+  outline: 2px solid var(--cyan);
+  outline-offset: 3px;
+}
+
+button:disabled {
+  cursor: default;
+  opacity: 0.68;
+}
+
+[hidden] {
+  display: none !important;
+}
+
+.game-shell {
+  --pad-top: max(20px, env(safe-area-inset-top));
+  --pad-bottom: max(14px, env(safe-area-inset-bottom));
+  --board-size: clamp(132px, calc((var(--viewport-height) - 145px - var(--pad-top) - var(--pad-bottom)) / 2), 316px);
+  --hud-size: clamp(68px, 20vw, 88px);
+  --field-gap: 10px;
+  width: min(100%, 450px);
+  margin: 0 auto;
+  padding: var(--pad-top) max(14px, env(safe-area-inset-right)) var(--pad-bottom) max(14px, env(safe-area-inset-left));
+  display: grid;
+  gap: 10px;
+}
+
+.masthead,
+.brand {
+  display: flex;
+  align-items: center;
+}
+
+.masthead {
+  min-width: 0;
+  gap: 8px;
+}
+
+.brand {
+  gap: 12px;
+  min-width: 0;
+}
+
+.brand-mark {
+  display: grid;
+  flex: 0 0 auto;
+  place-items: center;
+  width: 45px;
+  height: 45px;
+  border: 1px solid #4e7289;
+  border-radius: 13px;
+  background: linear-gradient(145deg, #254559, #1b263e 60%, #181c36);
+  box-shadow: inset 0 1px #d7faff20, 0 3px 10px #070a1970;
+  color: var(--cyan);
+}
+
+.brand-mark svg {
+  display: block;
+  width: 27px;
+  height: 27px;
+}
+
+.eyebrow {
+  display: block;
+  margin: 0 0 3px;
+  font: 700 10px/1 var(--mono);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--cyan);
+}
+
+.masthead h1 {
+  margin: 0;
+  font-size: clamp(24px, 6.4vw, 31px);
+  line-height: 1.06;
+  letter-spacing: 0.03em;
+  white-space: nowrap;
+}
+
+.icon-button {
+  display: grid;
+  flex: 0 0 auto;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: 1px solid var(--border);
+  border-radius: 13px;
+  background: linear-gradient(155deg, #202c48, #121a2f);
+  color: #d5e7fa;
+}
+
+.icon-button svg {
+  display: block;
+  width: 19px;
+  height: 19px;
+}
+
+.settings-button {
+  border-color: #396071;
+  background: linear-gradient(155deg, #254150, #17243a);
+  color: var(--cyan);
+}
+
+#pause-button {
+  margin-inline-start: auto;
+}
+
+.side-hud {
+  display: grid;
+  align-content: start;
+  gap: var(--field-gap);
+  min-width: 0;
+}
+
+.stat-card,
+.preview-card {
+  min-width: 0;
+  min-height: 66px;
+  padding: 9px 6px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: linear-gradient(145deg, #1c2641, #121a30 75%);
+  box-shadow: inset 0 1px #ffffff0a;
+}
+
+.stat-card {
+  display: grid;
+  align-content: center;
+  gap: 6px;
+  text-align: center;
+}
+
+.stat-label {
+  display: block;
+  color: #b3c0da;
+  font-size: 11px;
+  font-weight: 650;
+  line-height: 1.1;
+  letter-spacing: 0.09em;
+}
+
+.stat-value {
+  display: block;
+  color: var(--cyan);
+  font: 750 clamp(17px, 5.5vw, 24px)/1.05 var(--mono);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.06em;
+  overflow-wrap: anywhere;
+}
+
+.preview-card {
+  display: grid;
+  grid-template-rows: auto 1fr;
+  justify-items: center;
+  align-items: center;
+  gap: 6px;
+  background: linear-gradient(150deg, #222447, #151a32 75%);
+  border-color: #3b3963;
+}
+
+#next-canvas {
+  display: block;
+  width: 100%;
+  height: 32px;
+  object-fit: contain;
+}
+
+.mode-switch {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 3px;
+  padding: 3px;
+  border: 1px solid #263351;
+  border-radius: 11px;
+  background: #10162a;
+}
+
+.mode-button {
+  min-height: 44px;
+  padding: 6px;
+  border: 1px solid transparent;
+  border-radius: 7px;
+  color: #acbad6;
+  background: transparent;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+}
+
+.mode-button[aria-pressed="true"] {
+  border-color: #3b6978;
+  color: #bcfff9;
+  background: linear-gradient(130deg, #204655, #23304d);
+  box-shadow: 0 1px 5px #0005, inset 0 1px #ffffff0d;
+}
+
+.playfield {
+  position: relative;
+  display: grid;
+  grid-template-columns: min(calc(100% - var(--hud-size) - var(--field-gap)), var(--board-size)) var(--hud-size);
+  justify-content: center;
+  align-items: start;
+  gap: var(--field-gap);
+  isolation: isolate;
+}
+
+.playfield::before {
+  position: absolute;
+  z-index: -1;
+  inset: 2px 0;
+  border: 1px solid #38456b46;
+  border-radius: 16px;
+  background:
+    repeating-linear-gradient(0deg, #8395c508 0 1px, transparent 1px 7px),
+    linear-gradient(90deg, #131b3080, #141e3c8a 45%, #141c3280);
+  content: "";
+}
+
+.board-frame {
+  position: relative;
+  min-width: 0;
+  padding: 4px;
+  border: 1px solid #6476a6;
+  border-radius: 10px;
+  background: linear-gradient(150deg, #3e5482, #1a233d 46%, #333457);
+  box-shadow: 0 0 0 3px #1a254490, 0 4px 18px #04061191, inset 0 1px #bed5ff27;
+}
+
+.board-frame::before,
+.board-frame::after {
+  position: absolute;
+  z-index: 1;
+  width: 20px;
+  height: 2px;
+  border-radius: 2px;
+  pointer-events: none;
+  content: "";
+}
+
+.board-frame::before {
+  top: -1px;
+  left: 9px;
+  background: var(--cyan);
+  box-shadow: 0 0 8px #84f3e887;
+}
+
+.board-frame::after {
+  right: 9px;
+  bottom: -1px;
+  background: var(--violet);
+  box-shadow: 0 0 8px #c4b0ff74;
+}
+
+#board {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 1 / 2;
+  border-radius: 5px;
+  background: #0a1021;
+  touch-action: none;
+}
+
+.game-overlay {
+  position: absolute;
+  z-index: 2;
+  inset: 5px;
+  display: grid;
+  place-items: center;
+  border-radius: 5px;
+  background: #090f21bb;
+  text-align: center;
+  overflow: hidden;
+}
+
+.overlay-card {
+  width: calc(100% - 18px);
+  max-width: 214px;
+  padding: 16px 10px;
+  border: 1px solid #50658e;
+  border-radius: 11px;
+  background: linear-gradient(146deg, #222e4b, #141c35 80%);
+  box-shadow: 0 9px 22px #0305109e, inset 0 1px #ffffff16;
+}
+
+.overlay-tag {
+  display: inline-block;
+  margin: 0;
+  color: var(--cyan);
+  font: 700 9px/1.15 var(--mono);
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+}
+
+.overlay-card h2 {
+  margin: 7px 0;
+  font-size: clamp(18px, 5.4vw, 25px);
+  line-height: 1.1;
+}
+
+.overlay-card p {
+  margin: 0 auto 12px;
+  color: #b5c4df;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.primary-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  width: 100%;
+  min-height: 43px;
+  padding: 6px 10px;
+  border: 1px solid #b4fff4;
+  border-radius: 8px;
+  background: linear-gradient(120deg, #a2f9e8, #6fdfef);
+  box-shadow: 0 3px #347d8f, 0 5px 12px #070c1f70;
+  color: #10243b;
+  font-size: 14px;
+  font-weight: 800;
+}
+
+.primary-button svg {
+  flex: 0 0 15px;
+  width: 15px;
+  height: 15px;
+}
+
+.secondary-button {
+  width: 100%;
+  min-height: 38px;
+  margin-top: 7px;
+  padding: 5px;
+  border: 0;
+  border-radius: 7px;
+  background: transparent;
+  color: #c4d0e6;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.secondary-button:active {
+  background: #263754;
+}
+
+.controls {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 7px;
+}
+
+.control-button {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  min-width: 0;
+  min-height: 60px;
+  padding: 5px 2px;
+  border: 1px solid #4a5a81;
+  border-radius: 11px;
+  background: linear-gradient(154deg, #2a3657, #172039 80%);
+  box-shadow: inset 0 1px #eef7ff16, 0 3px #10172a, 0 5px 7px #070b1680;
+  color: #dfeaff;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.15;
+  text-align: center;
+  touch-action: none;
+}
+
+.control-button svg {
+  display: block;
+  width: 23px;
+  height: 23px;
+  pointer-events: none;
+}
+
+.control-button span {
+  pointer-events: none;
+}
+
+.control-drop {
+  color: #a7ffef;
+  border-color: #477d81;
+  background: linear-gradient(154deg, #255365, #1a2d48 82%);
+}
+
+.control-rotate {
+  color: #e0d3ff;
+  border-color: #675797;
+  background: linear-gradient(154deg, #413768, #262347 82%);
+}
+
+.control-button:active:not(:disabled),
+.primary-button:active:not(:disabled) {
+  transform: translateY(2px);
+  filter: brightness(1.18);
+  box-shadow: inset 0 1px #eef7ff16, 0 1px #10172a;
+}
+
+.icon-button:active:not(:disabled) {
+  background: #2b3b5c;
+}
+
+.game-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 4px 10px;
+  padding: 1px 1px 0;
+  color: var(--muted);
+  font-size: 10px;
+  line-height: 1.2;
+  letter-spacing: 0.08em;
+}
+
+#game-status::before {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  margin-right: 6px;
+  border-radius: 50%;
+  background: var(--cyan);
+  box-shadow: 0 0 7px #7dece975;
+  vertical-align: 1px;
+  content: "";
+}
+
+#level-status {
+  color: var(--violet);
+  font-variant-numeric: tabular-nums;
+}
+
+.settings-dialog {
+  width: min(352px, calc(100% - 32px));
+  max-height: calc(var(--viewport-height) - var(--pad-top) - var(--pad-bottom) - 16px);
+  padding: 18px;
+  overflow: auto;
+  border: 1px solid #526692;
+  border-radius: 16px;
+  background: linear-gradient(155deg, #242f4d, #121a30 78%);
+  box-shadow: 0 16px 48px #020611bb, inset 0 1px #ffffff18;
+  color: var(--text);
+}
+
+.settings-dialog::backdrop {
+  background: #070b19c7;
+}
+
+.settings-header,
+.record-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+
+.settings-header h2 {
+  margin: 0;
+  font-size: 24px;
+  line-height: 1.15;
+}
+
+.settings-note {
+  margin: 16px 0 8px;
+  color: #bdcce5;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+#mode-help {
+  min-height: 2em;
+  margin-top: 8px;
+}
+
+.records {
+  display: grid;
+  gap: 7px;
+  margin: 12px 0 15px;
+}
+
+.record-row {
+  min-height: 42px;
+  padding: 8px 10px;
+  border: 1px solid #354269;
+  border-radius: 8px;
+  background: #1c2742;
+}
+
+.record-row .stat-label {
+  flex: 0 0 auto;
+  font-size: 12px;
+}
+
+.record-row .stat-value {
+  text-align: end;
+  color: var(--violet);
+}
+
+.settings-done {
+  min-height: 44px;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .control-button:hover:not(:disabled),
+  .icon-button:hover:not(:disabled),
+  .primary-button:hover:not(:disabled) {
+    filter: brightness(1.15);
+  }
+
+  .mode-button:hover:not(:disabled) {
+    color: #e6fffc;
+  }
+}
+
+@media (max-height: 720px) {
+  .game-shell {
+    --pad-top: max(12px, env(safe-area-inset-top));
+    --pad-bottom: max(9px, env(safe-area-inset-bottom));
+    --board-size: clamp(132px, calc((var(--viewport-height) - 126px - var(--pad-top) - var(--pad-bottom)) / 2), 316px);
+    gap: 8px;
+  }
+
+  .control-button {
+    min-height: 52px;
+  }
+}
+
+@media (max-width: 330px) {
+  .game-shell {
+    --hud-size: 62px;
+    --field-gap: 8px;
+    padding-inline: max(10px, env(safe-area-inset-right)) max(10px, env(safe-area-inset-left));
+  }
+
+  .masthead,
+  .brand {
+    gap: 6px;
+  }
+
+  .brand-mark {
+    width: 40px;
+    height: 40px;
+  }
+
+  .controls {
+    gap: 5px;
+  }
+}
+
+</style>
+</head>
+<body>
+  <main class="game-shell" aria-label="方块街机">
+    <header class="masthead">
+      <div class="brand">
+        <span class="brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 36 36" fill="none">
+            <rect x="5" y="7" width="8" height="8" rx="1.5" fill="#8a75ff"/>
+            <rect x="14" y="7" width="8" height="8" rx="1.5" fill="#aa97ff"/>
+            <rect x="23" y="7" width="8" height="8" rx="1.5" fill="#8a75ff"/>
+            <rect x="14" y="16" width="8" height="8" rx="1.5" fill="#7557f3"/>
+          </svg>
+        </span>
+        <div>
+          <div class="eyebrow" aria-hidden="true">POCKET ARCADE</div>
+          <h1>方块街机</h1>
+        </div>
+      </div>
+      <button class="icon-button settings-button" id="settings-button" type="button" aria-label="设置" title="设置" aria-haspopup="dialog">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M10 3h4l.6 2.7 2 .9 2.4-1.4 2 3.5-2 1.8v2.4l2 1.9-2 3.5-2.4-1.4-2 .9L14 21h-4l-.6-3.2-2-.9L5 18.3l-2-3.5 2-1.9v-2.4L3 8.7l2-3.5 2.4 1.4 2-.9z"/>
+          <circle cx="12" cy="12" r="3"/>
+        </svg>
+      </button>
+      <button class="icon-button" id="pause-button" type="button" aria-label="暂停" title="暂停" disabled>
+        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="7" y="5" width="3.5" height="14" rx="1"/><rect x="13.5" y="5" width="3.5" height="14" rx="1"/></svg>
+      </button>
+    </header>
+
+    <section class="playfield" aria-label="游戏区域">
+      <div class="board-frame">
+        <canvas id="board" width="300" height="600" role="img" aria-label="10 列 20 行的方块棋盘"></canvas>
+        <div class="game-overlay" id="game-overlay">
+          <div class="overlay-card">
+            <span class="overlay-tag" id="overlay-tag">俄罗斯方块</span>
+            <h2 id="overlay-title">准备就绪</h2>
+            <p id="overlay-description">方块落下的速度始终相同。</p>
+            <button class="primary-button" id="primary-action" type="button">
+              <svg viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path d="M6 4.6a1 1 0 0 1 1.5-.9l8 5.4a1 1 0 0 1 0 1.8l-8 5.4a1 1 0 0 1-1.5-.9z"/></svg>
+              <span id="action-text">开始游戏</span>
+            </button>
+            <button class="secondary-button" id="reset-button" type="button" hidden>结束本局</button>
+          </div>
+        </div>
+      </div>
+      <aside class="side-hud" aria-label="预告与分数">
+        <div class="preview-card">
+          <span class="stat-label">下一个</span>
+          <canvas id="next-canvas" width="96" height="44" role="img" aria-label="下一个方块"></canvas>
+        </div>
+        <div class="stat-card">
+          <span class="stat-label">当前分</span>
+          <span class="stat-value" id="score">0</span>
+        </div>
+      </aside>
+    </section>
+
+    <section class="controls" aria-label="游戏操控">
+      <button class="control-button" type="button" data-action="left" disabled>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5m6-6-6 6 6 6"/></svg><span>左移</span>
+      </button>
+      <button class="control-button control-rotate" type="button" data-action="rotate" disabled>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 8a8 8 0 1 0 .2 7.5M20 3v5.5h-5.5"/></svg><span>变形</span>
+      </button>
+      <button class="control-button control-drop" type="button" data-action="drop" disabled>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 6 6 6 6-6M6 12l6 6 6-6"/></svg><span>加速</span>
+      </button>
+      <button class="control-button" type="button" data-action="right" disabled>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14m-6-6 6 6-6 6"/></svg><span>右移</span>
+      </button>
+    </section>
+    <footer class="game-footer">
+      <span id="game-status" role="status">等待开始</span>
+      <span id="level-status">已消除 0 行</span>
+    </footer>
+    <dialog class="settings-dialog" id="settings-dialog" aria-labelledby="settings-title">
+      <div class="settings-header">
+        <div>
+          <span class="eyebrow" aria-hidden="true">POCKET ARCADE</span>
+          <h2 id="settings-title">游戏设置</h2>
+        </div>
+        <button class="icon-button" id="settings-close" type="button" aria-label="关闭设置" autofocus>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"/></svg>
+        </button>
+      </div>
+      <p class="settings-note" id="settings-note">游戏模式</p>
+      <div class="mode-switch" role="group" aria-labelledby="settings-note">
+        <button class="mode-button" type="button" data-mode="steady" aria-pressed="true">匀速</button>
+        <button class="mode-button" type="button" data-mode="accelerate" aria-pressed="false">渐快</button>
+        <button class="mode-button" type="button" data-mode="triangle" aria-pressed="false">三角形</button>
+      </div>
+      <p class="settings-note" id="mode-help">匀速模式下，方块下落速度始终相同。</p>
+      <div class="records" aria-label="最高分记录">
+        <div class="record-row">
+          <span class="stat-label">匀速最高分</span>
+          <strong class="stat-value" id="best-steady">0</strong>
+        </div>
+        <div class="record-row">
+          <span class="stat-label">渐快最高分</span>
+          <strong class="stat-value" id="best-accelerate">0</strong>
+        </div>
+        <div class="record-row">
+          <span class="stat-label">三角形最高分</span>
+          <strong class="stat-value" id="best-triangle">0</strong>
+        </div>
+        <div class="record-row" id="legacy-record" hidden>
+          <span class="stat-label">旧版总最高分</span>
+          <strong class="stat-value" id="best-legacy">0</strong>
+        </div>
+      </div>
+      <button class="primary-button settings-done" id="settings-done" type="button">完成</button>
+    </dialog>
+  </main>
+<script>
+(function (root) {
+  "use strict";
+
+  const WIDTH = 10;
+  const HEIGHT = 20;
+  const BASE_INTERVAL = 800;
+  const FAST_INTERVAL = 70;
+  const PIECES = {
+    I: [[0, 1], [1, 1], [2, 1], [3, 1]],
+    J: [[0, 0], [0, 1], [1, 1], [2, 1]],
+    L: [[2, 0], [0, 1], [1, 1], [2, 1]],
+    O: [[1, 0], [2, 0], [1, 1], [2, 1]],
+    S: [[1, 0], [2, 0], [0, 1], [1, 1]],
+    T: [[1, 0], [0, 1], [1, 1], [2, 1]],
+    Z: [[0, 0], [1, 0], [1, 1], [2, 1]],
+    M: [[1, 0]],
+    U: [[0, 1], [1, 1], [2, 1]],
+    V: [[0, 0], [0, 1], [1, 1]],
+    D: [[0, 0], [1, 1], [2, 2]],
+  };
+  const TYPES = Object.keys(PIECES);
+  // Give each straight bar and the single square half the weight of other pieces.
+  const BAG = TYPES.concat(TYPES.filter((type) => !["I", "U", "M"].includes(type)));
+  const ROTATION_BOX = { I: 4, V: 2 };
+  const LINE_POINTS = [0, 100, 300, 500, 800];
+
+  function emptyRow() {
+    return Array(WIDTH).fill(null);
+  }
+
+  class Game {
+    constructor(mode = "steady", random = Math.random) {
+      this.mode = mode;
+      this.random = random;
+      this.board = Array.from({ length: HEIGHT }, emptyRow);
+      this.bag = [];
+      this.score = 0;
+      this.lines = 0;
+      this.over = false;
+      this.gravityProgress = 0;
+      this.next = this.draw();
+      this.spawn();
+    }
+
+    get level() {
+      return this.mode === "accelerate" ? 1 + Math.floor(this.lines / 5) : 1;
+    }
+
+    get interval() {
+      return Math.max(140, Math.round(BASE_INTERVAL * 0.83 ** (this.level - 1)));
+    }
+
+    draw() {
+      if (this.bag.length === 0) {
+        this.bag = BAG.slice();
+        for (let index = this.bag.length - 1; index > 0; index -= 1) {
+          const other = Math.floor(this.random() * (index + 1));
+          [this.bag[index], this.bag[other]] = [this.bag[other], this.bag[index]];
+        }
+      }
+      return this.bag.pop();
+    }
+
+    spawn() {
+      const type = this.next;
+      this.active = { type, x: type === "V" ? 4 : 3, y: 0, cells: PIECES[type] };
+      this.next = this.draw();
+      this.over = !this.fits(this.active.x, this.active.y, this.active.cells);
+    }
+
+    fits(x, y, cells) {
+      return cells.every(([offsetX, offsetY]) => {
+        const column = x + offsetX;
+        const row = y + offsetY;
+        return column >= 0 && column < WIDTH && row < HEIGHT &&
+          (row < 0 || this.board[row][column] === null);
+      });
+    }
+
+    move(dx) {
+      const piece = this.active;
+      if (this.over || !this.fits(piece.x + dx, piece.y, piece.cells)) return false;
+      piece.x += dx;
+      return true;
+    }
+
+    rotate() {
+      const piece = this.active;
+      if (this.over || piece.type === "O" || piece.type === "M") return false;
+      const box = ROTATION_BOX[piece.type] ?? 3;
+      const cells = piece.cells.map(([x, y]) => [box - 1 - y, x]);
+      if (!this.fits(piece.x, piece.y, cells)) return false;
+      piece.cells = cells;
+      return true;
+    }
+
+    ghostY() {
+      const piece = this.active;
+      let y = piece.y;
+      while (this.fits(piece.x, y + 1, piece.cells)) y += 1;
+      return y;
+    }
+
+    stepDown(fast) {
+      const piece = this.active;
+      if (!this.fits(piece.x, piece.y + 1, piece.cells)) return false;
+      piece.y += 1;
+      if (fast) this.score += 2;
+      return true;
+    }
+
+    softDrop() {
+      if (this.over || !this.stepDown(true)) return false;
+      this.gravityProgress = 0;
+      return true;
+    }
+
+    tick(ms, fast = false) {
+      if (this.over) return false;
+      // Track progress in rows so switching speed never skips accumulated steps.
+      this.gravityProgress += ms / (fast ? FAST_INTERVAL : this.interval);
+      let changed = false;
+      while (!this.over && this.gravityProgress >= 1 - 1e-9) {
+        this.gravityProgress = Math.max(0, this.gravityProgress - 1);
+        if (!this.stepDown(fast)) this.lock();
+        changed = true;
+      }
+      return changed;
+    }
+
+    lock() {
+      const piece = this.active;
+      if (piece.cells.some(([, y]) => piece.y + y < 0)) {
+        this.over = true;
+        return;
+      }
+      for (const [x, y] of piece.cells) {
+        this.board[piece.y + y][piece.x + x] = piece.type;
+      }
+      const remaining = this.board.filter((row) => row.includes(null));
+      const cleared = HEIGHT - remaining.length;
+      if (cleared > 0) {
+        this.score += LINE_POINTS[cleared] * this.level;
+        this.lines += cleared;
+        this.board = Array.from({ length: cleared }, emptyRow).concat(remaining);
+      }
+      this.spawn();
+    }
+  }
+
+  const engine = { Game, PIECES, WIDTH, HEIGHT };
+  if (typeof module === "object" && module.exports) {
+    module.exports = engine;
+  } else {
+    root.TetrisEngine = engine;
+  }
+})(globalThis);
+
+(function (root) {
+  "use strict";
+
+  const WIDTH = 5;
+  const HEIGHT = 10;
+  const SECTOR_COUNT = 12;
+  const FULL_POINT = (1 << SECTOR_COUNT) - 1;
+  const BASE_INTERVAL = 800;
+  const FAST_INTERVAL = 70;
+  const POINT_SCORE = 100;
+  const PIECES = {
+    E: { sectors: 2 },
+    R: { sectors: 3 },
+    C: { sectors: 9 },
+  };
+  const TYPES = Object.keys(PIECES);
+
+  function pieceMask({ type, rotation }) {
+    const sectors = ((1 << PIECES[type].sectors) - 1) << rotation;
+    return (sectors | (sectors >>> SECTOR_COUNT)) & FULL_POINT;
+  }
+
+  function pointMask(point) {
+    return point.reduce((mask, piece) => mask | pieceMask(piece), 0);
+  }
+
+  class Game {
+    constructor(random = Math.random) {
+      this.random = random;
+      this.board = Array.from({ length: HEIGHT }, () => Array.from({ length: WIDTH }, () => []));
+      this.bag = [];
+      this.score = 0;
+      this.lines = 0;
+      this.over = false;
+      this.gravityProgress = 0;
+      this.next = this.draw();
+      this.spawn();
+    }
+
+    get interval() {
+      return BASE_INTERVAL;
+    }
+
+    draw() {
+      if (this.bag.length === 0) {
+        this.bag = TYPES.slice();
+        for (let index = this.bag.length - 1; index > 0; index -= 1) {
+          const other = Math.floor(this.random() * (index + 1));
+          [this.bag[index], this.bag[other]] = [this.bag[other], this.bag[index]];
+        }
+      }
+      return this.bag.pop();
+    }
+
+    spawn() {
+      const piece = { type: this.next, x: Math.floor(WIDTH / 2), y: 0, rotation: 0 };
+      this.next = this.draw();
+      this.active = piece;
+      if (!this.fits(piece.x, piece.y) || this.completesPoint(piece.y)) piece.y = -1;
+    }
+
+    fits(x, y, rotation = this.active.rotation) {
+      if (x < 0 || x >= WIDTH || y >= HEIGHT) return false;
+      if (y < 0) return true;
+      const movingSectors = pieceMask({ type: this.active.type, rotation });
+      return (movingSectors & pointMask(this.board[y][x])) === 0;
+    }
+
+    completesPoint(y) {
+      if (y < 0) return false;
+      const piece = this.active;
+      return (pointMask(this.board[y][piece.x]) | pieceMask(piece)) === FULL_POINT;
+    }
+
+    move(dx) {
+      const piece = this.active;
+      if (this.over || !this.fits(piece.x + dx, piece.y)) return false;
+      piece.x += dx;
+      if (this.completesPoint(piece.y)) this.lock();
+      return true;
+    }
+
+    rotate() {
+      const piece = this.active;
+      const rotation = (piece.rotation + 1) % SECTOR_COUNT;
+      if (this.over || !this.fits(piece.x, piece.y, rotation)) return false;
+      piece.rotation = rotation;
+      if (this.completesPoint(piece.y)) this.lock();
+      return true;
+    }
+
+    ghostY() {
+      const piece = this.active;
+      let y = piece.y;
+      while (!this.completesPoint(y) && this.fits(piece.x, y + 1)) y += 1;
+      return y;
+    }
+
+    stepDown(fast) {
+      const piece = this.active;
+      if (!this.fits(piece.x, piece.y + 1)) return false;
+      piece.y += 1;
+      if (fast) this.score += 2;
+      if (this.completesPoint(piece.y)) this.lock();
+      return true;
+    }
+
+    softDrop() {
+      if (this.over || !this.stepDown(true)) return false;
+      this.gravityProgress = 0;
+      return true;
+    }
+
+    tick(ms, fast = false) {
+      if (this.over) return false;
+      this.gravityProgress += ms / (fast ? FAST_INTERVAL : this.interval);
+      let changed = false;
+      while (!this.over && this.gravityProgress >= 1 - 1e-9) {
+        this.gravityProgress = Math.max(0, this.gravityProgress - 1);
+        if (!this.stepDown(fast)) this.lock();
+        changed = true;
+      }
+      return changed;
+    }
+
+    lock() {
+      const { type, x, y, rotation } = this.active;
+      if (y < 0) {
+        this.over = true;
+        return;
+      }
+      if (this.completesPoint(y)) {
+        this.board[y][x] = [];
+        this.lines += 1;
+        this.score += POINT_SCORE;
+      } else {
+        this.board[y][x].push({ type, rotation });
+      }
+      this.spawn();
+    }
+  }
+
+  const engine = { Game, PIECES, WIDTH, HEIGHT, SECTOR_COUNT };
+  if (typeof module === "object" && module.exports) {
+    module.exports = engine;
+  } else {
+    root.TriangleEngine = engine;
+  }
+})(globalThis);
+
+(() => {
+  "use strict";
+
+  const { PIECES, WIDTH, HEIGHT } = TriangleEngine;
+  const size = 60;
+  const radius = 25;
+  const sectors = 12;
+  const directions = Array.from({ length: sectors }, (_, index) => {
+    const angle = index * Math.PI / 6 - Math.PI / 2;
+    return [Math.cos(angle), Math.sin(angle)];
+  });
+  const names = { E: "等边三角形", R: "等腰直角三角形", C: "270° 凹角拼片" };
+  const colors = {
+    E: ["#36d0e9", "#a5f2ff", "#178cae"],
+    R: ["#ffb45f", "#ffe0a5", "#d07542"],
+    C: ["#a68aff", "#e1d4ff", "#7551d7"],
+  };
+
+  function center(column, row) {
+    return [(column + 0.5) * size, (row + 0.5) * size];
+  }
+
+  function vertices(type, rotation) {
+    const span = PIECES[type].sectors;
+    const points = [[0, 0]];
+    const increment = type === "C" ? 3 : span;
+    for (let offset = 0; offset <= span; offset += increment) {
+      points.push(directions[(rotation + offset) % sectors]);
+    }
+    return points;
+  }
+
+  function drawPiece(ctx, type, rotation, x, y, scale, appearance) {
+    const [face, light, dark] = colors[type];
+    const [first, ...points] = vertices(type, rotation);
+    ctx.beginPath();
+    ctx.moveTo(x + first[0] * scale, y + first[1] * scale);
+    for (const [dx, dy] of points) ctx.lineTo(x + dx * scale, y + dy * scale);
+    ctx.closePath();
+
+    if (appearance === "ghost") {
+      ctx.fillStyle = `${face}19`;
+      ctx.strokeStyle = `${face}a8`;
+      ctx.lineWidth = 1.35;
+      ctx.setLineDash([3, 2]);
+      ctx.fill();
+      ctx.stroke();
+      ctx.setLineDash([]);
+      return;
+    }
+
+    const fill = ctx.createLinearGradient(x - scale, y - scale, x + scale, y + scale);
+    fill.addColorStop(0, light);
+    fill.addColorStop(0.48, face);
+    fill.addColorStop(1, dark);
+    ctx.fillStyle = fill;
+    ctx.strokeStyle = appearance === "active" ? light : `${light}8c`;
+    ctx.lineWidth = appearance === "active" ? 1.35 : 0.9;
+    ctx.lineJoin = "round";
+    ctx.fill();
+    ctx.stroke();
+  }
+
+  function drawGuides(ctx) {
+    const background = ctx.createLinearGradient(0, 0, 0, HEIGHT * size);
+    background.addColorStop(0, "#10182b");
+    background.addColorStop(1, "#0a101f");
+    ctx.fillStyle = background;
+    ctx.fillRect(0, 0, WIDTH * size, HEIGHT * size);
+
+    ctx.beginPath();
+    for (let row = 0; row < HEIGHT; row += 1) {
+      for (let column = 0; column < WIDTH; column += 1) {
+        const [x, y] = center(column, row);
+        ctx.moveTo(x + 27, y);
+        ctx.arc(x, y, 27, 0, Math.PI * 2);
+        for (const [dx, dy] of directions) {
+          ctx.moveTo(x + dx * 23, y + dy * 23);
+          ctx.lineTo(x + dx * 27, y + dy * 27);
+        }
+      }
+    }
+    ctx.strokeStyle = "#8cadf13a";
+    ctx.lineWidth = 0.85;
+    ctx.stroke();
+  }
+
+  function drawBoard(ctx, game, state) {
+    ctx.save();
+    drawGuides(ctx);
+
+    for (let row = 0; row < HEIGHT; row += 1) {
+      for (let column = 0; column < WIDTH; column += 1) {
+        const [x, y] = center(column, row);
+        for (const { type, rotation } of game.board[row][column]) {
+          drawPiece(ctx, type, rotation, x, y, radius, "placed");
+        }
+      }
+    }
+
+    let waiting = null;
+    if (game.active && (state === "playing" || state === "paused")) {
+      const { type, rotation, x: column, y: row } = game.active;
+      const landing = game.ghostY();
+      if (landing >= 0 && landing > row) {
+        drawPiece(ctx, type, rotation, ...center(column, landing), radius, "ghost");
+      }
+      if (row >= 0) {
+        drawPiece(ctx, type, rotation, ...center(column, row), radius, "active");
+      } else {
+        waiting = { type, rotation, x: center(column, 0)[0] };
+      }
+    }
+
+    ctx.beginPath();
+    for (let row = 0; row < HEIGHT; row += 1) {
+      for (let column = 0; column < WIDTH; column += 1) {
+        const [x, y] = center(column, row);
+        ctx.moveTo(x + 1.6, y);
+        ctx.arc(x, y, 1.6, 0, Math.PI * 2);
+      }
+    }
+    ctx.fillStyle = "#cfe4ff8c";
+    ctx.fill();
+    if (waiting) {
+      ctx.fillStyle = "#172841";
+      ctx.fillRect(waiting.x - 13, 1, 26, 22);
+      ctx.strokeStyle = "#80a4cf";
+      ctx.lineWidth = 1;
+      ctx.strokeRect(waiting.x - 13, 1, 26, 22);
+      drawPiece(ctx, waiting.type, waiting.rotation, waiting.x, 12, 8, "active");
+    }
+    ctx.restore();
+  }
+
+  function drawPreview(ctx, type, width, height) {
+    ctx.clearRect(0, 0, width, height);
+    if (!type) return;
+    const points = vertices(type, 0);
+    const xs = points.map(([x]) => x);
+    const ys = points.map(([, y]) => y);
+    const left = Math.min(...xs);
+    const right = Math.max(...xs);
+    const top = Math.min(...ys);
+    const bottom = Math.max(...ys);
+    const scale = Math.min(25, (width - 6) / (right - left), (height - 6) / (bottom - top));
+    const x = (width - (left + right) * scale) / 2;
+    const y = (height - (top + bottom) * scale) / 2;
+    ctx.save();
+    drawPiece(ctx, type, 0, x, y, scale, "active");
+    ctx.restore();
+  }
+
+  globalThis.TriangleView = { drawBoard, drawPreview, names };
+})();
+
+(() => {
+  "use strict";
+
+  const { Game, PIECES, WIDTH, HEIGHT } = TetrisEngine;
+  const $ = (id) => document.getElementById(id);
+  const board = $("board");
+  const preview = $("next-canvas");
+  const previewWidth = preview.width;
+  const previewHeight = preview.height;
+  const modes = [...document.querySelectorAll("[data-mode]")];
+  const controls = [...document.querySelectorAll("[data-action]")];
+  const pauseButton = $("pause-button");
+  const settingsButton = $("settings-button");
+  const settingsDialog = $("settings-dialog");
+  const overlay = $("game-overlay");
+  const primaryAction = $("primary-action");
+  const resetButton = $("reset-button");
+  const modeKey = "fangkuai-arcade.mode";
+  const scoreKeys = {
+    steady: "fangkuai-arcade.best.steady.v2",
+    accelerate: "fangkuai-arcade.best.accelerate.v2",
+    triangle: "fangkuai-arcade.best.triangle.v1",
+  };
+  const modeDescriptions = {
+    steady: "方块下落速度始终相同。",
+    accelerate: "每消除 5 行，方块下落更快。",
+    triangle: "围绕同一圆点拼满 360° 即可消除。每次变形旋转 30°。",
+  };
+  const format = new Intl.NumberFormat("zh-CN");
+
+  const palettes = {
+    I: ["#38d6ec", "#a3f3fa", "#1894bd"],
+    J: ["#597cf8", "#a0b5ff", "#3748c4"],
+    L: ["#ffa65e", "#ffdab1", "#d66936"],
+    O: ["#ffd166", "#ffedaf", "#ca9233"],
+    S: ["#5adca5", "#adf5cd", "#2a9e78"],
+    T: ["#a184ff", "#d5c4ff", "#6f4cda"],
+    Z: ["#ff718d", "#ffb5c5", "#cf4263"],
+    M: ["#e0ecff", "#ffffff", "#8c9bbd"],
+    U: ["#eb85db", "#ffbdee", "#aa479a"],
+    V: ["#bee968", "#e5ffa8", "#7da23c"],
+    D: ["#f55750", "#ffb1a4", "#b82f3a"],
+  };
+  const pieceLabels = { M: "单格", U: "三格直条", V: "三格阶梯", D: "三格对角线" };
+
+  const backdrop = [
+    "...T......",
+    "..TTT.....",
+    "..........",
+    "..........",
+    "..........",
+    "..........",
+    "..........",
+    "..........",
+    "..........",
+    "..........",
+    "..........",
+    "..........",
+    "..........",
+    "..........",
+    "..........",
+    "..........",
+    "I.......JJ",
+    "I......SSJ",
+    "I.OO.LSS.J",
+    "I.OO.LLL..",
+  ];
+
+  const savedMode = loadPreference(modeKey);
+  let mode = Object.keys(scoreKeys).includes(savedMode) ? savedMode : "steady";
+  let state = "ready";
+  let game = newGame();
+  const best = {
+    steady: loadBest(scoreKeys.steady),
+    accelerate: loadBest(scoreKeys.accelerate),
+    triangle: loadBest(scoreKeys.triangle),
+  };
+  const legacyBest = loadBest("fangkuai-arcade.best.v1");
+  let resumeAfterSettings = false;
+  let lastFrame = 0;
+  let animation = 0;
+  let holdDelay = 0;
+  let holdRepeat = 0;
+  let fastPointer = null;
+  const fastKeys = new Set();
+
+  function newGame() {
+    return mode === "triangle" ? new TriangleEngine.Game() : new Game(mode);
+  }
+
+  function loadPreference(key) {
+    try {
+      return localStorage.getItem(key);
+    } catch {
+      return null;
+    }
+  }
+
+  function savePreference(key, value) {
+    try {
+      localStorage.setItem(key, String(value));
+    } catch {
+      // Scores and mode still work while this page is open.
+    }
+  }
+
+  function loadBest(key) {
+    const value = Number(loadPreference(key));
+    return Number.isSafeInteger(value) && value > 0 ? value : 0;
+  }
+
+  function recordScore() {
+    if (game.score <= best[mode]) return;
+    best[mode] = game.score;
+    savePreference(scoreKeys[mode], best[mode]);
+  }
+
+  function setupCanvas(canvas) {
+    const context = canvas.getContext("2d");
+    const scale = Math.min(3, Math.max(2, Math.ceil(window.devicePixelRatio || 1)));
+    canvas.width *= scale;
+    canvas.height *= scale;
+    context.scale(scale, scale);
+    return context;
+  }
+
+  const field = setupCanvas(board);
+  const next = setupCanvas(preview);
+  const size = 30;
+  const fieldWidth = WIDTH * size;
+  const fieldHeight = HEIGHT * size;
+  const background = field.createLinearGradient(0, 0, 0, fieldHeight);
+  background.addColorStop(0, "#10182b");
+  background.addColorStop(1, "#0a101f");
+
+  function roundedRect(ctx, x, y, width, height, radius) {
+    ctx.beginPath();
+    ctx.moveTo(x + radius, y);
+    ctx.arcTo(x + width, y, x + width, y + height, radius);
+    ctx.arcTo(x + width, y + height, x, y + height, radius);
+    ctx.arcTo(x, y + height, x, y, radius);
+    ctx.arcTo(x, y, x + width, y, radius);
+    ctx.closePath();
+  }
+
+  function tile(ctx, x, y, unit, type, ghost = false) {
+    const [face, light, shadow] = palettes[type];
+    const gap = unit > 20 ? 1.6 : 1;
+    const edge = unit - gap * 2;
+    roundedRect(ctx, x + gap, y + gap, edge, edge, unit * 0.14);
+    if (ghost) {
+      ctx.fillStyle = `${face}20`;
+      ctx.strokeStyle = `${face}70`;
+      ctx.lineWidth = 1.4;
+      ctx.fill();
+      ctx.stroke();
+      return;
+    }
+    ctx.fillStyle = shadow;
+    ctx.fill();
+    roundedRect(ctx, x + gap, y + gap, edge, edge - unit * 0.11, unit * 0.14);
+    ctx.fillStyle = face;
+    ctx.fill();
+    roundedRect(ctx, x + gap + unit * 0.13, y + gap + unit * 0.11, edge - unit * 0.26, unit * 0.065, unit * 0.033);
+    ctx.fillStyle = light;
+    ctx.fill();
+  }
+
+  function pieceOnBoard(piece, y, ghost = false) {
+    for (const [dx, dy] of piece.cells) {
+      if (y + dy >= 0) tile(field, (piece.x + dx) * size, (y + dy) * size, size, piece.type, ghost);
+    }
+  }
+
+  function drawBoard() {
+    if (mode === "triangle") {
+      TriangleView.drawBoard(field, game, state);
+      return;
+    }
+    field.fillStyle = background;
+    field.fillRect(0, 0, fieldWidth, fieldHeight);
+    field.beginPath();
+    for (let x = size; x < fieldWidth; x += size) {
+      field.moveTo(x, 0);
+      field.lineTo(x, fieldHeight);
+    }
+    for (let y = size; y < fieldHeight; y += size) {
+      field.moveTo(0, y);
+      field.lineTo(fieldWidth, y);
+    }
+    field.strokeStyle = "#a5bdf416";
+    field.lineWidth = 0.75;
+    field.stroke();
+
+    const cells = state === "ready" ? backdrop : game.board;
+    field.globalAlpha = state === "ready" ? 0.52 : 1;
+    for (let y = 0; y < HEIGHT; y += 1) {
+      for (let x = 0; x < WIDTH; x += 1) {
+        const type = cells[y][x];
+        if (type && type !== ".") tile(field, x * size, y * size, size, type);
+      }
+    }
+    field.globalAlpha = 1;
+
+    if (game.active && (state === "playing" || state === "paused")) {
+      const landing = game.ghostY();
+      if (landing > game.active.y) pieceOnBoard(game.active, landing, true);
+      pieceOnBoard(game.active, game.active.y);
+    }
+  }
+
+  function drawPreview() {
+    if (mode === "triangle") {
+      TriangleView.drawPreview(next, game.next, previewWidth, previewHeight);
+      preview.setAttribute("aria-label", `下一个拼片为${TriangleView.names[game.next]}`);
+      return;
+    }
+    next.clearRect(0, 0, previewWidth, previewHeight);
+    const cells = PIECES[game.next];
+    if (!cells) return;
+    const columns = cells.map(([x]) => x);
+    const rows = cells.map(([, y]) => y);
+    const minY = Math.min(...rows);
+    const maxY = Math.max(...rows);
+    const unit = Math.min(18, Math.floor((previewHeight - 4) / (maxY - minY + 1)));
+    const left = (previewWidth - unit * (Math.max(...columns) + Math.min(...columns) + 1)) / 2;
+    const top = (previewHeight - unit * (maxY + minY + 1)) / 2;
+    for (const [x, y] of cells) tile(next, left + x * unit, top + y * unit, unit, game.next);
+    preview.setAttribute("aria-label", `下一个方块为${pieceLabels[game.next] || ` ${game.next} 形`}`);
+  }
+
+  function refreshScores() {
+    recordScore();
+    $("score").textContent = format.format(game.score);
+    $("best-steady").textContent = format.format(best.steady);
+    $("best-accelerate").textContent = format.format(best.accelerate);
+    $("best-triangle").textContent = format.format(best.triangle);
+    if (mode === "triangle") {
+      $("level-status").textContent = `三角形 · 已拼满 ${game.lines} 个点`;
+    } else {
+      $("level-status").textContent = mode === "accelerate"
+        ? `渐快 · 等级 ${game.level} · 已消除 ${game.lines} 行`
+        : `匀速 · 已消除 ${game.lines} 行`;
+    }
+  }
+
+  function updateInterface() {
+    const playing = state === "playing";
+    const paused = state === "paused";
+    const ready = state === "ready";
+    const ended = state === "ended";
+    pauseButton.disabled = !playing && !paused;
+    pauseButton.setAttribute("aria-label", paused ? "继续游戏" : "暂停");
+    pauseButton.title = paused ? "继续游戏" : "暂停";
+    pauseButton.innerHTML = paused
+      ? '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>'
+      : '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="7" y="5" width="3.5" height="14" rx="1"/><rect x="13.5" y="5" width="3.5" height="14" rx="1"/></svg>';
+    for (const control of controls) control.disabled = !playing;
+    for (const button of modes) {
+      button.setAttribute("aria-pressed", String(button.dataset.mode === mode));
+    }
+    const modeDescription = modeDescriptions[mode];
+    const isTriangle = mode === "triangle";
+    board.setAttribute("aria-label", isTriangle
+      ? `${TriangleEngine.WIDTH} 列 ${TriangleEngine.HEIGHT} 行的三角形拼点棋盘`
+      : "10 列 20 行的方块棋盘");
+    $("mode-help").textContent = playing || paused
+      ? modeDescription + "切换模式会结束本局。"
+      : modeDescription;
+    overlay.hidden = playing;
+    resetButton.hidden = !paused;
+    $("game-status").textContent = { ready: "等待开始", playing: "游戏中", paused: "已暂停", ended: "本局结束" }[state];
+
+    if (ready) {
+      $("overlay-tag").textContent = isTriangle ? "三角形模式" : "俄罗斯方块";
+      $("overlay-title").textContent = "准备就绪";
+      $("overlay-description").textContent = modeDescription;
+      $("action-text").textContent = "开始游戏";
+    }
+    if (paused) {
+      $("overlay-tag").textContent = "休息一下";
+      $("overlay-title").textContent = "游戏暂停";
+      $("overlay-description").textContent = "准备好后，随时继续本局。";
+      $("action-text").textContent = "继续游戏";
+    }
+    if (ended) {
+      $("overlay-tag").textContent = "本局结束";
+      $("overlay-title").textContent = `${format.format(game.score)} 分`;
+      $("overlay-description").textContent = isTriangle
+        ? `共拼满 ${game.lines} 个点。`
+        : `共消除 ${game.lines} 行。`;
+      $("action-text").textContent = "再玩一局";
+    }
+    drawBoard();
+    drawPreview();
+    refreshScores();
+  }
+
+  function stopHold() {
+    clearTimeout(holdDelay);
+    clearInterval(holdRepeat);
+  }
+
+  function isFastDrop() {
+    return fastPointer !== null || fastKeys.size > 0;
+  }
+
+  function stopControls() {
+    stopHold();
+    fastPointer = null;
+    fastKeys.clear();
+  }
+
+  function setState(nextState) {
+    state = nextState;
+    cancelAnimationFrame(animation);
+    stopControls();
+    lastFrame = 0;
+    updateInterface();
+    if (state === "playing") animation = requestAnimationFrame(frame);
+  }
+
+  function refreshPlay(previous, previousScore) {
+    if (game.over) {
+      setState("ended");
+      return;
+    }
+    drawBoard();
+    if (previous !== game.active) drawPreview();
+    if (previous !== game.active || previousScore !== game.score) refreshScores();
+  }
+
+  function frame(now) {
+    if (state !== "playing") return;
+    const previous = game.active;
+    const previousScore = game.score;
+    const changed = lastFrame && game.tick(Math.min(now - lastFrame, 100), isFastDrop());
+    lastFrame = now;
+    if (changed) refreshPlay(previous, previousScore);
+    if (state === "playing") animation = requestAnimationFrame(frame);
+  }
+
+  function perform(action) {
+    if (state !== "playing") return;
+    const previous = game.active;
+    const previousScore = game.score;
+    if (action === "left") game.move(-1);
+    if (action === "right") game.move(1);
+    if (action === "rotate") game.rotate();
+    if (action === "drop") game.softDrop();
+    refreshPlay(previous, previousScore);
+  }
+
+  for (const button of controls) {
+    const action = button.dataset.action;
+    if (action === "left" || action === "right") {
+      button.addEventListener("pointerdown", (event) => {
+        if (event.button !== 0 || state !== "playing") return;
+        stopHold();
+        button.setPointerCapture(event.pointerId);
+        perform(action);
+        holdDelay = setTimeout(() => {
+          perform(action);
+          holdRepeat = setInterval(() => perform(action), 55);
+        }, 175);
+      });
+      for (const type of ["pointerup", "pointercancel", "lostpointercapture"]) {
+        button.addEventListener(type, stopHold);
+      }
+      button.addEventListener("click", (event) => {
+        if (event.detail === 0) perform(action);
+      });
+    } else {
+      button.addEventListener("pointerdown", (event) => {
+        if (event.button !== 0 || state !== "playing") return;
+        if (action === "rotate") {
+          perform(action);
+          return;
+        }
+        if (fastPointer !== null) return;
+        const wasFast = isFastDrop();
+        button.setPointerCapture(event.pointerId);
+        fastPointer = event.pointerId;
+        if (!wasFast) perform(action);
+      });
+      if (action === "drop") {
+        for (const type of ["pointerup", "pointercancel", "lostpointercapture"]) {
+          button.addEventListener(type, (event) => {
+            if (event.pointerId === fastPointer) fastPointer = null;
+          });
+        }
+      }
+      button.addEventListener("click", (event) => {
+        if (event.detail === 0) perform(action);
+      });
+    }
+  }
+
+  function chooseMode(nextMode) {
+    if (nextMode === mode) return;
+    resumeAfterSettings = false;
+    mode = nextMode;
+    savePreference(modeKey, mode);
+    game = newGame();
+    setState("ready");
+  }
+
+  for (const button of modes) {
+    button.addEventListener("click", () => chooseMode(button.dataset.mode));
+  }
+
+  settingsButton.addEventListener("click", () => {
+    resumeAfterSettings = state === "playing";
+    if (resumeAfterSettings) setState("paused");
+    settingsDialog.showModal();
+  });
+  $("settings-close").addEventListener("click", () => settingsDialog.close());
+  $("settings-done").addEventListener("click", () => settingsDialog.close());
+  settingsDialog.addEventListener("close", () => {
+    if (resumeAfterSettings && !document.hidden) setState("playing");
+    resumeAfterSettings = false;
+  });
+
+  function togglePause() {
+    if (state === "playing") setState("paused");
+    else if (state === "paused") setState("playing");
+  }
+
+  primaryAction.addEventListener("click", () => {
+    if (state === "ended") game = newGame();
+    setState("playing");
+  });
+  pauseButton.addEventListener("click", togglePause);
+  resetButton.addEventListener("click", () => {
+    game = newGame();
+    setState("ready");
+    primaryAction.focus();
+  });
+  document.addEventListener("visibilitychange", () => {
+    if (document.hidden && state === "playing") setState("paused");
+  });
+  window.addEventListener("blur", stopControls);
+
+  const keyboard = { ArrowLeft: "left", ArrowRight: "right", ArrowUp: "rotate", ArrowDown: "drop", " ": "drop" };
+  document.addEventListener("keydown", (event) => {
+    if (settingsDialog.open) return;
+    if (event.key === "Escape" && !event.repeat) {
+      togglePause();
+      return;
+    }
+    const action = keyboard[event.key];
+    const focusedButton = event.target.closest?.("button");
+    if (state !== "playing" || !action) return;
+    if (event.key === " " && focusedButton && focusedButton.dataset.action !== "drop") return;
+    event.preventDefault();
+    if (action === "drop") {
+      if (event.repeat) return;
+      const wasFast = isFastDrop();
+      fastKeys.add(event.key);
+      if (!wasFast) perform(action);
+    } else if (!event.repeat || action === "left" || action === "right") {
+      perform(action);
+    }
+  });
+  document.addEventListener("keyup", (event) => fastKeys.delete(event.key));
+
+  if (legacyBest > 0) {
+    $("legacy-record").hidden = false;
+    $("best-legacy").textContent = format.format(legacyBest);
+  }
+  updateInterface();
+  if ("serviceWorker" in navigator && (location.protocol === "https:" || location.hostname === "localhost" || location.hostname === "127.0.0.1")) {
+    navigator.serviceWorker.register("./sw.js").catch(() => {});
+  }
+})();
+
+</script>
+</body>
+</html>
+
