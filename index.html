@@ -408,16 +408,16 @@ button:disabled {
 
 .controls {
   display: grid;
-  grid-template-columns: minmax(0, 3fr) minmax(80px, 1.4fr);
-  gap: 14px;
+  grid-template-columns: 160px minmax(64px, 1fr);
+  gap: 8px;
   align-items: center;
 }
 
-.direction-controls { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); grid-template-rows:repeat(2, 52px); gap:5px; }
+.direction-controls { display:grid; grid-template-columns:repeat(3, 52px); grid-template-rows:repeat(2, 52px); gap:2px; justify-content:center; }
 .direction-controls [data-action="left"] { grid-area:1 / 1; }
 .direction-controls [data-action="right"] { grid-area:1 / 3; }
 .direction-controls [data-action="drop"] { grid-area:2 / 2; }
-.controls.swapped { grid-template-columns:minmax(80px,1.4fr) minmax(0,3fr); }
+.controls.swapped { grid-template-columns:minmax(64px,1fr) 160px; }
 .controls.swapped .direction-controls { order:2; }
 .controls.swapped .control-rotate { order:1; }
 .layout-switch { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
@@ -455,7 +455,9 @@ button:disabled {
 
 .direction-controls .control-button {
   min-height: 0;
-  border-radius: 18px;
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
 }
 
 .control-drop {
