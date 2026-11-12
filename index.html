@@ -75,7 +75,7 @@ button:disabled {
 .game-shell {
   --pad-top: max(20px, env(safe-area-inset-top));
   --pad-bottom: max(14px, env(safe-area-inset-bottom));
-  --board-size: clamp(132px, calc((var(--viewport-height) - 145px - var(--pad-top) - var(--pad-bottom)) / 2), 316px);
+  --board-size: clamp(110px, calc((var(--viewport-height) - 210px - var(--pad-top) - var(--pad-bottom)) / 2), 316px);
   --hud-size: clamp(68px, 20vw, 88px);
   --field-gap: 10px;
   width: min(100%, 450px);
@@ -408,12 +408,16 @@ button:disabled {
 
 .controls {
   display: grid;
-  grid-template-columns: minmax(0, 3fr) minmax(64px, 1fr);
+  grid-template-columns: minmax(0, 3fr) minmax(80px, 1.4fr);
   gap: 14px;
+  align-items: center;
 }
 
-.direction-controls { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:7px; }
-.controls.swapped { grid-template-columns:minmax(64px,1fr) minmax(0,3fr); }
+.direction-controls { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); grid-template-rows:repeat(2, 52px); gap:5px; }
+.direction-controls [data-action="left"] { grid-area:1 / 1; }
+.direction-controls [data-action="right"] { grid-area:1 / 3; }
+.direction-controls [data-action="drop"] { grid-area:2 / 2; }
+.controls.swapped { grid-template-columns:minmax(80px,1.4fr) minmax(0,3fr); }
 .controls.swapped .direction-controls { order:2; }
 .controls.swapped .control-rotate { order:1; }
 .layout-switch { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
@@ -449,6 +453,11 @@ button:disabled {
   pointer-events: none;
 }
 
+.direction-controls .control-button {
+  min-height: 0;
+  border-radius: 18px;
+}
+
 .control-drop {
   color: #a7ffef;
   border-color: #477d81;
@@ -456,6 +465,11 @@ button:disabled {
 }
 
 .control-rotate {
+  width: 100%;
+  aspect-ratio: 1;
+  max-width: 112px;
+  justify-self: center;
+  border-radius: 50%;
   color: #e0d3ff;
   border-color: #675797;
   background: linear-gradient(154deg, #413768, #262347 82%);
@@ -597,7 +611,7 @@ button:disabled {
   .game-shell {
     --pad-top: max(12px, env(safe-area-inset-top));
     --pad-bottom: max(9px, env(safe-area-inset-bottom));
-    --board-size: clamp(132px, calc((var(--viewport-height) - 126px - var(--pad-top) - var(--pad-bottom)) / 2), 316px);
+    --board-size: clamp(110px, calc((var(--viewport-height) - 195px - var(--pad-top) - var(--pad-bottom)) / 2), 316px);
     gap: 8px;
   }
 
