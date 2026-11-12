@@ -572,6 +572,15 @@ button:disabled {
   min-height: 44px;
 }
 
+.install-button {
+  margin-top: 14px;
+  border-color: #675797;
+  color: #e0d3ff;
+  background: linear-gradient(154deg, #413768, #262347 82%);
+  box-shadow: 0 3px #18142f;
+}
+.install-help { margin: 9px 0 0; color: #bdcce5; font-size: 13px; line-height: 1.5; }
+
 @media (hover: hover) and (pointer: fine) {
   .control-button:hover:not(:disabled),
   .icon-button:hover:not(:disabled),
@@ -729,6 +738,8 @@ button:disabled {
           <strong class="stat-value" id="best-legacy">0</strong>
         </div>
       </div>
+      <button class="primary-button install-button" id="install-button" type="button" aria-describedby="install-help">安装应用</button>
+      <p class="install-help" id="install-help" role="status" hidden></p>
       <button class="primary-button settings-done" id="settings-done" type="button">完成</button>
     </dialog>
   </main>
@@ -1617,6 +1628,47 @@ button:disabled {
   }
   layoutButtons.forEach(button => button.addEventListener("click", () => setLayout(button.dataset.layout)));
   setLayout(loadPreference("fangkuai-arcade.layout"));
+  let installPrompt = null;
+  const installButton = $("install-button");
+  const installHelp = $("install-help");
+  function installed() {
+    return window.matchMedia("(display-mode: standalone)").matches || navigator.standalone === true;
+  }
+  function updateInstallButton() {
+    installButton.disabled = installed();
+    installButton.textContent = installed() ? "已安装应用" : "安装应用";
+  }
+  window.addEventListener("beforeinstallprompt", event => {
+    event.preventDefault();
+    installPrompt = event;
+  });
+  window.addEventListener("appinstalled", () => {
+    installPrompt = null;
+    installButton.disabled = true;
+    installButton.textContent = "已安装应用";
+    installHelp.hidden = false;
+    installHelp.textContent = "安装成功，可以从主屏幕打开方块街机。";
+  });
+  installButton.addEventListener("click", async () => {
+    if (installPrompt) {
+      const prompt = installPrompt;
+      installPrompt = null;
+      try {
+        await prompt.prompt();
+        const result = await prompt.userChoice;
+        installHelp.textContent = result.outcome === "accepted" ? "正在安装，请查看手机主屏幕。" : "已取消安装，可在浏览器菜单中再次安装。";
+      } catch {
+        installHelp.textContent = "暂时无法打开安装窗口，请使用浏览器菜单中的安装或添加到主屏幕。";
+      }
+    } else if (/iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1)) {
+      installHelp.textContent = "请在 Safari 中点击分享按钮，然后选择“添加到主屏幕”。";
+    } else {
+      installHelp.textContent = "请在浏览器菜单中选择“安装应用”或“添加到主屏幕”。如果没有此选项，请稍后刷新页面再试。";
+    }
+    installHelp.hidden = false;
+  });
+  updateInstallButton();
+
   settingsButton.addEventListener("click", () => {
     resumeAfterSettings = state === "playing";
     if (resumeAfterSettings) setState("paused");
@@ -1685,4 +1737,5 @@ button:disabled {
 </script>
 </body>
 </html>
+
 
