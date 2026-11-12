@@ -6,6 +6,9 @@
   <meta name="theme-color" content="#0b101e">
   <meta name="description" content="适合手机竖屏游玩的单机拼块游戏，支持匀速、渐快和三角形模式。">
   <title>方块街机 · 俄罗斯方块</title>
+<link rel="manifest" href="./manifest.webmanifest">
+<link rel="apple-touch-icon" href="./icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
   <link rel="icon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxOTIgMTkyIj4KICA8ZGVmcz4KICAgIDxsaW5lYXJHcmFkaWVudCBpZD0iYmFja2dyb3VuZCIgeDI9IjEiIHkyPSIxIiBncmFkaWVudFVuaXRzPSJvYmplY3RCb3VuZGluZ0JveCI+CiAgICAgIDxzdG9wIHN0b3AtY29sb3I9IiMyMTIwNDUiLz4KICAgICAgPHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjMTAxMDI0Ii8+CiAgICA8L2xpbmVhckdyYWRpZW50PgogICAgPGxpbmVhckdyYWRpZW50IGlkPSJibG9jayIgeDI9IjAiIHkyPSIxIiBncmFkaWVudFVuaXRzPSJvYmplY3RCb3VuZGluZ0JveCI+CiAgICAgIDxzdG9wIHN0b3AtY29sb3I9IiNjMzljZmYiLz4KICAgICAgPHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjOGM1NmZmIi8+CiAgICA8L2xpbmVhckdyYWRpZW50PgogICAgPGcgaWQ9InNxdWFyZSI+CiAgICAgIDxyZWN0IHk9IjMiIHdpZHRoPSIzMiIgaGVpZ2h0PSIzMiIgcng9IjYiIGZpbGw9IiM2MDM0YzQiLz4KICAgICAgPHJlY3Qgd2lkdGg9IjMyIiBoZWlnaHQ9IjMyIiByeD0iNiIgZmlsbD0idXJsKCNibG9jaykiLz4KICAgICAgPHBhdGggZD0iTTcgN2gxOCIgc3Ryb2tlPSIjZWZlM2ZmIiBzdHJva2Utb3BhY2l0eT0iLjciIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIi8+CiAgICA8L2c+CiAgPC9kZWZzPgogIDxwYXRoIGZpbGw9InVybCgjYmFja2dyb3VuZCkiIGQ9Ik0wIDBoMTkydjE5MkgweiIvPgogIDxjaXJjbGUgY3g9Ijk2IiBjeT0iOTYiIHI9IjY1IiBmaWxsPSIjMjMyMDQ5IiBzdHJva2U9IiM0ODQxNzIiIHN0cm9rZS13aWR0aD0iMiIvPgogIDx1c2UgaHJlZj0iI3NxdWFyZSIgeD0iODAiIHk9IjU5Ii8+CiAgPHVzZSBocmVmPSIjc3F1YXJlIiB4PSI0NCIgeT0iOTUiLz4KICA8dXNlIGhyZWY9IiNzcXVhcmUiIHg9IjgwIiB5PSI5NSIvPgogIDx1c2UgaHJlZj0iI3NxdWFyZSIgeD0iMTE2IiB5PSI5NSIvPgo8L3N2Zz4K">
 <style>
 :root {
@@ -405,10 +408,15 @@ button:disabled {
 
 .controls {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 7px;
+  grid-template-columns: minmax(0, 3fr) minmax(64px, 1fr);
+  gap: 14px;
 }
 
+.direction-controls { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:7px; }
+.controls.swapped { grid-template-columns:minmax(64px,1fr) minmax(0,3fr); }
+.controls.swapped .direction-controls { order:2; }
+.controls.swapped .control-rotate { order:1; }
+.layout-switch { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
 .control-button {
   display: flex;
   flex-direction: column;
@@ -670,18 +678,12 @@ button:disabled {
     </section>
 
     <section class="controls" aria-label="游戏操控">
-      <button class="control-button" type="button" data-action="left" disabled>
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5m6-6-6 6 6 6"/></svg><span>左移</span>
-      </button>
-      <button class="control-button control-rotate" type="button" data-action="rotate" disabled>
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 8a8 8 0 1 0 .2 7.5M20 3v5.5h-5.5"/></svg><span>变形</span>
-      </button>
-      <button class="control-button control-drop" type="button" data-action="drop" disabled>
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 6 6 6 6-6M6 12l6 6 6-6"/></svg><span>加速</span>
-      </button>
-      <button class="control-button" type="button" data-action="right" disabled>
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14m-6-6 6 6-6 6"/></svg><span>右移</span>
-      </button>
+      <div class="direction-controls" role="group" aria-label="方向控制">
+        <button class="control-button" type="button" data-action="left" aria-label="左移" disabled><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5m6-6-6 6 6 6"/></svg><span>左移</span></button>
+        <button class="control-button" type="button" data-action="right" aria-label="右移" disabled><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14m-6-6 6 6-6 6"/></svg><span>右移</span></button>
+        <button class="control-button control-drop" type="button" data-action="drop" aria-label="加速下落" disabled><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v16m-6-6 6 6 6-6"/></svg><span>加速</span></button>
+      </div>
+      <button class="control-button control-rotate" type="button" data-action="rotate" aria-label="变形" disabled><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 8a8 8 0 1 0 .2 7.5M20 3v5.5h-5.5"/></svg><span>变形</span></button>
     </section>
     <footer class="game-footer">
       <span id="game-status" role="status">等待开始</span>
@@ -704,6 +706,11 @@ button:disabled {
         <button class="mode-button" type="button" data-mode="triangle" aria-pressed="false">三角形</button>
       </div>
       <p class="settings-note" id="mode-help">匀速模式下，方块下落速度始终相同。</p>
+      <p class="settings-note" id="layout-label">操作区位置</p>
+      <div class="layout-switch" role="group" aria-labelledby="layout-label">
+        <button class="mode-button" type="button" data-layout="normal" aria-pressed="true">方向在左</button>
+        <button class="mode-button" type="button" data-layout="swapped" aria-pressed="false">方向在右</button>
+      </div>
       <div class="records" aria-label="最高分记录">
         <div class="record-row">
           <span class="stat-label">匀速最高分</span>
@@ -1601,6 +1608,15 @@ button:disabled {
     button.addEventListener("click", () => chooseMode(button.dataset.mode));
   }
 
+  const layoutButtons = [...document.querySelectorAll("[data-layout]")];
+  function setLayout(layout) {
+    const swapped = layout === "swapped";
+    document.querySelector(".controls").classList.toggle("swapped", swapped);
+    for (const button of layoutButtons) button.setAttribute("aria-pressed", String(button.dataset.layout === (swapped ? "swapped" : "normal")));
+    savePreference("fangkuai-arcade.layout", swapped ? "swapped" : "normal");
+  }
+  layoutButtons.forEach(button => button.addEventListener("click", () => setLayout(button.dataset.layout)));
+  setLayout(loadPreference("fangkuai-arcade.layout"));
   settingsButton.addEventListener("click", () => {
     resumeAfterSettings = state === "playing";
     if (resumeAfterSettings) setState("paused");
