@@ -6,6 +6,12 @@
   <meta name="theme-color" content="#0b101e">
   <meta name="description" content="适合手机竖屏游玩的单机拼块游戏，支持匀速、渐快和三角形模式。">
   <title>方块街机 · 俄罗斯方块</title>
+  <script>
+    window.addEventListener('beforeinstallprompt', event => {
+      event.preventDefault();
+      window.fangkuaiInstallPrompt = event;
+    });
+  </script>
 <link rel="manifest" href="./manifest.webmanifest">
 <link rel="apple-touch-icon" href="./icon-192.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -1644,7 +1650,6 @@ button:disabled {
   }
   layoutButtons.forEach(button => button.addEventListener("click", () => setLayout(button.dataset.layout)));
   setLayout(loadPreference("fangkuai-arcade.layout"));
-  let installPrompt = null;
   const installButton = $("install-button");
   const installHelp = $("install-help");
   function installed() {
@@ -1654,21 +1659,17 @@ button:disabled {
     installButton.disabled = installed();
     installButton.textContent = installed() ? "已安装应用" : "安装应用";
   }
-  window.addEventListener("beforeinstallprompt", event => {
-    event.preventDefault();
-    installPrompt = event;
-  });
   window.addEventListener("appinstalled", () => {
-    installPrompt = null;
+    window.fangkuaiInstallPrompt = null;
     installButton.disabled = true;
     installButton.textContent = "已安装应用";
     installHelp.hidden = false;
     installHelp.textContent = "安装成功，可以从主屏幕打开方块街机。";
   });
   installButton.addEventListener("click", async () => {
-    if (installPrompt) {
-      const prompt = installPrompt;
-      installPrompt = null;
+    if (window.fangkuaiInstallPrompt) {
+      const prompt = window.fangkuaiInstallPrompt;
+      window.fangkuaiInstallPrompt = null;
       try {
         await prompt.prompt();
         const result = await prompt.userChoice;
@@ -1679,7 +1680,7 @@ button:disabled {
     } else if (/iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1)) {
       installHelp.textContent = "请在 Safari 中点击分享按钮，然后选择“添加到主屏幕”。";
     } else {
-      installHelp.textContent = "请在浏览器菜单中选择“安装应用”或“添加到主屏幕”。如果没有此选项，请稍后刷新页面再试。";
+      installHelp.textContent = "当前浏览器未提供安装窗口。请用 Chrome 打开此页面，点击浏览器菜单 ⋮，选择“安装应用”或“添加到主屏幕”。微信内请先选择“在浏览器打开”。";
     }
     installHelp.hidden = false;
   });
